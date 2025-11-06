@@ -1,5 +1,6 @@
 <?php
 require 'connections.php';
+require_once(__DIR__ . '/session.php');
 
 // Set content type to JSON for AJAX responses
 header('Content-Type: application/json');
@@ -42,16 +43,13 @@ try {
         exit;
     }
 
-    // Start session if not already started
-    if (session_status() == PHP_SESSION_NONE) {
-        session_start();
-    }
-    $_SESSION['user_id'] = $user['customer_id'];
-    $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
-    $_SESSION['user_email'] = $user['email'];
-    $_SESSION['logged_in'] = true;
-    // Show welcome modal on next page load (immediately after login)
-    $_SESSION['show_welcome'] = true;
+    Session::start();
+    Session::login([
+        'id' => $user['customer_id'],
+        'name' => $user['first_name'] . ' ' . $user['last_name'],
+        'email' => $user['email'],
+    ]);
+    Session::setWelcomeOnce();
 
     // After successful login, redirect to intended page or default
     $redirectTo = isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : '../pages/home.php';

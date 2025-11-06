@@ -1,26 +1,19 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+if (!class_exists('Session')) {
+    require_once(__DIR__ . '/session.php');
 }
 
-// Function to check if user is logged in
+Session::start();
+
 function isLoggedIn() {
-    return isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
+    return Session::isLoggedIn();
 }
 
-// Function to get current user data
 function getCurrentUser() {
-    if (isLoggedIn()) {
-        return [
-            'id' => $_SESSION['user_id'],
-            'name' => $_SESSION['user_name'],
-            'email' => $_SESSION['user_email']
-        ];
-    }
-    return null;
+    $user = Session::user();
+    return $user ?: null;
 }
 
-// Function to require login (redirect if not logged in)
 function requireLogin($redirectTo = '../pages/home.php') {
     if (!isLoggedIn()) {
         header('Location: ' . $redirectTo);
@@ -28,7 +21,6 @@ function requireLogin($redirectTo = '../pages/home.php') {
     }
 }
 
-// Function to require guest (redirect if logged in)
 function requireGuest($redirectTo = '../pages/home.php') {
     if (isLoggedIn()) {
         header('Location: ' . $redirectTo);
